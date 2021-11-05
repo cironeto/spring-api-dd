@@ -1,6 +1,8 @@
 package dev.cironeto.springbootdevdojo.controller;
 
 import dev.cironeto.springbootdevdojo.domain.Student;
+import dev.cironeto.springbootdevdojo.requests.StudentPostRequestBody;
+import dev.cironeto.springbootdevdojo.requests.StudentPutRequestBody;
 import dev.cironeto.springbootdevdojo.service.StudentService;
 import dev.cironeto.springbootdevdojo.util.DateUtil;
 import lombok.AllArgsConstructor;
@@ -29,12 +31,12 @@ public class StudentController {
     @GetMapping(path = "/{id}")
     public ResponseEntity<Student> findById(@PathVariable long id) {
         log.info(dateUtil.formatLocalDateTimetoDatebaseStyle(LocalDateTime.now()));
-        return ResponseEntity.ok(studentService.findById(id));
+        return ResponseEntity.ok(studentService.findByIdOrThrowBadRequestException(id));
     }
 
     @PostMapping
-    public ResponseEntity<Student> save(@RequestBody Student student) {
-        return new ResponseEntity<>(studentService.save(student), HttpStatus.CREATED);
+    public ResponseEntity<Student> save(@RequestBody StudentPostRequestBody studentPostRequestBody) {
+        return new ResponseEntity<>(studentService.save(studentPostRequestBody), HttpStatus.CREATED);
     }
 
     @DeleteMapping(path = "/{id}")
@@ -44,8 +46,8 @@ public class StudentController {
     }
 
     @PutMapping
-    public ResponseEntity replace(@RequestBody Student student) {
-        studentService.replace(student);
+    public ResponseEntity<Student> replace(@RequestBody StudentPutRequestBody studentPutRequestBody) {
+        studentService.replace(studentPutRequestBody);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

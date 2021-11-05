@@ -1,44 +1,46 @@
 package dev.cironeto.springbootdevdojo.service;
 
 import dev.cironeto.springbootdevdojo.domain.Student;
+import dev.cironeto.springbootdevdojo.repository.StudentRepository;
+import dev.cironeto.springbootdevdojo.requests.StudentPostRequestBody;
+import dev.cironeto.springbootdevdojo.requests.StudentPutRequestBody;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 
 @Service
+@RequiredArgsConstructor
 public class StudentService {
 
-    public static List<Student> students =
-            new ArrayList<>(List.of(new Student(1, "Ciro Neto"), new Student(2, "Amanda")));
+    private final StudentRepository studentRepository;
 
 
     public List<Student> listAll() {
-        return students;
+        return studentRepository.findAll();
     }
 
-    public Student findById(long id) {
-        return students.stream()
-                .filter(student -> student.getId() == id)
-                .findFirst()
+    public Student findByIdOrThrowBadRequestException(long id) {
+        return studentRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "ID not found"));
+
     }
 
-    public Student save(Student student) {
-        student.setId(ThreadLocalRandom.current().nextLong(3, 100));
-        students.add(student);
-        return student;
+    public Student save(StudentPostRequestBody studentPostRequestBody) {
+        return studentRepository.save(Student.builder().name(studentPostRequestBody.getName()).build());
     }
 
     public void delete(long id) {
-        students.remove(findById(id));
+        studentRepository.delete(findByIdOrThrowBadRequestException(id));
     }
 
-    public void replace(Student student) {
-        delete(student.getId());
-        students.add(student);
+    public void replace(StudentPutRequestBody studentPutRequestBody) {
+        Student savedStudent = findByIdOrThrowBadRequestException(studentPutRequestBody.getId());
+        studentRepository.save(Student.builder()
+                .id(savedStudent.getId())
+                .name(studentPutRequestBody.getName())
+                .build());
     }
 }

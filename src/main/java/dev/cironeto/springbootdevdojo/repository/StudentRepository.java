@@ -1,14 +1,11 @@
 package dev.cironeto.springbootdevdojo.repository;
 
 import dev.cironeto.springbootdevdojo.domain.Student;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface StudentRepository {
-    default List<Student> listAll(){
-        return List.of(new Student(1, "Ciro Neto"), new Student(2, "Amanda"));
-    }
-
+public interface StudentRepository extends JpaRepository<Student, Long> {
 
 
 }

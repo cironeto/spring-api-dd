@@ -1,6 +1,7 @@
 package dev.cironeto.springbootdevdojo.service;
 
 import dev.cironeto.springbootdevdojo.domain.Student;
+import dev.cironeto.springbootdevdojo.mapper.StudentMapper;
 import dev.cironeto.springbootdevdojo.repository.StudentRepository;
 import dev.cironeto.springbootdevdojo.requests.StudentPostRequestBody;
 import dev.cironeto.springbootdevdojo.requests.StudentPutRequestBody;
@@ -29,7 +30,7 @@ public class StudentService {
     }
 
     public Student save(StudentPostRequestBody studentPostRequestBody) {
-        return studentRepository.save(Student.builder().name(studentPostRequestBody.getName()).build());
+        return studentRepository.save(StudentMapper.INSTANCE.toStudent(studentPostRequestBody));
     }
 
     public void delete(long id) {
@@ -38,9 +39,8 @@ public class StudentService {
 
     public void replace(StudentPutRequestBody studentPutRequestBody) {
         Student savedStudent = findByIdOrThrowBadRequestException(studentPutRequestBody.getId());
-        studentRepository.save(Student.builder()
-                .id(savedStudent.getId())
-                .name(studentPutRequestBody.getName())
-                .build());
+        Student studentToBeReplaced = StudentMapper.INSTANCE.toStudent(studentPutRequestBody);
+        studentToBeReplaced.setId(savedStudent.getId());
+        studentRepository.save(studentToBeReplaced);
     }
 }
